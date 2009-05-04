@@ -1,0 +1,68 @@
+<html>
+<head>
+<title>ticTOC Lookup Service</title>
+<style>
+pre {
+    background-color: #F0F0F0;
+    border: 1px;
+}
+</style>
+</head>
+<body>
+<h2>Overview</h2>
+<p>
+This Google app provides a JSON interface to <a href="http://www.tictocs.ac.uk/">ticTOCs Journal Tables of Contents service</a>,
+based on the data set provided <a href="http://www.tictocs.ac.uk/text.php">here.</a>
+</p>
+<h2>Usage as a web service</h2>
+<p>
+This service allows querying by ISSN.  In addition, a Title may be provided to disambiguate 
+in cases where multiple feeds are offered for the same ISSN.
+</p>
+<p>Examples:</p>
+<ul>
+<li>
+<b>Basic ISSN search:</b> <br />
+<a href="http://tictoclookup.appspot.com/0028-0836">http://tictoclookup.appspot.com/0028-0836</a>
+<pre>
+{"lastmod": "Wed Apr 29 05:42:36 2009", 
+ "records": [
+    {"title": "Nature AOP", "rssfeed": "http:\/\/www.nature.com\/nature\/journal\/vaop\/ncurrent\/rss.rdf"}, 
+    {"title": "Nature", "rssfeed": "http:\/\/www.nature.com\/nature\/current_issue\/rss"}
+ ], 
+ "issn": "00280836"}
+</pre>
+
+<li>
+<b>Use of title= attribute:</b> <br />
+<a href="http://tictoclookup.appspot.com/0028-0836?title=Nature">http://tictoclookup.appspot.com/0028-0836?title=Nature</a>
+<pre>
+{"lastmod": "Wed Apr 29 05:42:36 2009", 
+ "records": [
+     {"title": "Nature", "rssfeed": "http:\/\/www.nature.com\/nature\/current_issue\/rss"}
+ ], 
+ "issn": "00280836"}
+</pre>
+
+<li>
+<b>Use of jsoncallback attribute:</b> <br />
+<a href="http://tictoclookup.appspot.com/0028-0836?title=Nature&amp;jsoncallback=process">http://tictoclookup.appspot.com/0028-0836?title=Nature&amp;jsoncallback=process</a>
+<pre>
+process({"lastmod": "Wed Apr 29 05:42:36 2009", 
+         "records": [
+           {"title": "Nature", "rssfeed": "http:\/\/www.nature.com\/nature\/current_issue\/rss"}
+         ], 
+         "issn": "00280836"})
+</pre>
+
+<li>
+<b>Example with unknown ISSN (no search results):</b> <br />
+<a href="http://tictoclookup.appspot.com/0028-083X">http://tictoclookup.appspot.com/0028-083X</a>
+<pre>
+{"lastmod": "Wed Apr 29 05:42:36 2009", "records": [], "issn": "0028083X"}
+</pre>
+</ul>
+
+<i>Written by Godmar Back &lt;libx.org@gmail.com&gt;</i>
+</body>
+</html>
