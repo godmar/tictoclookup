@@ -1,0 +1,23 @@
+application: tictoclookup
+version: 1
+runtime: python
+api_version: 1
+
+handlers:
+- url: /
+  static_files: index.html
+  upload: index.html
+
+#- url: /console/static
+#  static_dir: console/app/view/static
+#
+#- url: /console.*
+#  script: console/app/console.py
+
+- url: /upload
+  script: $PYTHON_LIB/google/appengine/ext/remote_api/handler.py
+  login: admin
+
+- url: .*
+  script: tictoc.py
+
