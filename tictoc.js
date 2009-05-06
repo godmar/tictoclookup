@@ -5,7 +5,7 @@ function handletictoc()
 {
 	$("head").append('<link rel="stylesheet" type="text/css" href="/screens/jquery.cluetip.css" />');
 	var tooltip = true; //if WebBridge is disabled, display a tooltip 
-	var tictoclabel = "Table of Contents";
+	var tictoclabel = "Subscribe to the Table of Contents Service";
 	//Test if WebBridge div id=tictoc exists
 	var tictoc = $("#tictoc");
 	if (tictoc.length == 0) {
@@ -33,13 +33,13 @@ function handletictoc()
 			 + '</td><td class="bibInfoData"><a id="tictocrssdata" title="' + tictoclabel + ' for ' + data.records[0].title 
 		 	 + '" href="' + data.records[0].rssfeed + '">'  
 		 	 + data.records[0].title 
-		 	 + '&nbsp;<img src="http://upload.wikimedia.org/wikipedia/commons/thumb/4/43/Feed-icon.svg/16px-Feed-icon.svg.png"/></a></td></tr>');
+		 	 + '&nbsp;<img src="/screens/16px-Feed-icon.svg.png"/></a></td></tr>');
 			tictoc = $('#tictocrssdata');
 		} else {
 			tictoc.append('<a title="' + tictoclabel + ' for ' + data.records[0].title 
 		 	 + '" href="' + data.records[0].rssfeed + '">' + tictoclabel + ' for ' 
 		 	 + data.records[0].title 
-		 	 + '&nbsp;<img src="http://upload.wikimedia.org/wikipedia/commons/thumb/4/43/Feed-icon.svg/16px-Feed-icon.svg.png"/></a><br />');
+		 	 + '&nbsp;<img src="/screens/16px-Feed-icon.svg.png"/></a><br />');
 		}
 		
 		if (tooltip) {
