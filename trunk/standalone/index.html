@@ -1,0 +1,70 @@
+<html>
+<head>
+<title>Tic-Toc Test page</title>
+<script src="http://www.google.com/jsapi"></script>
+<script type="text/javascript">
+google.load("jquery", "1.3.2");
+google.load("feeds", "1");
+
+var serviceurl = document.baseURI.replace(/index\.html$/, "");
+//var serviceurl = "http://libx.lib.vt.edu/services/tictoclookup/standalone/";
+//var serviceurl = "http://tictoclookup.appspot.com/";
+
+function newissn() {
+    var issn = $('#issn-input').val();
+    var title = $('#title-input').val();
+
+    var titleclause = "?";
+    if (title != "")
+        titleclause += "title=" + encodeURIComponent(title) + "&";
+
+    titleclause += "jsoncallback=?";
+
+    var url = serviceurl + issn + titleclause;
+
+    $.getJSON(url,
+        function (data) {
+            var out = $('#output');
+            out.empty();
+            if (data.records.length == 0) {
+                out.append("no record found for issn: " + data.issn);
+                return;
+            }
+
+            $('head').append('<link rel="alternate" type="application/rss+xml" title="Table of Content for ' + data.records[0].title + '" href="' + data.records[0].rssfeed + '"/>');
+
+            // for CSS, see
+            // http://code.google.com/apis/ajaxfeeds/documentation/reference.html#FeedControl
+            feedControl = new google.feeds.FeedControl();
+            feedControl.setNumEntries(10);
+            for (var i = 0; i < data.records.length; i++) {
+                out.append('<a title="Table of Content for ' + data.records[i].title + '" href="' + data.records[i].rssfeed + '">Table of Content for ' + data.records[i].title + '</a>&nbsp;<img src="http://upload.wikimedia.org/wikipedia/commons/thumb/4/43/Feed-icon.svg/16px-Feed-icon.svg.png"/><br />');
+                feedControl.addFeed(data.records[i].rssfeed, data.records[i].title);
+            }
+            $('#rssoutput').empty();
+            feedControl.draw(document.getElementById("rssoutput"), 
+                { drawMode : google.feeds.FeedControl.DRAW_MODE_TABBED }
+            );
+        }
+    );
+
+}
+
+</script>
+
+</head>
+<body>
+
+Please enter at least 1 ISSN (such as 0028-0836) and, optionally, the 
+title of a Journal (e.g., "Nature" or "Nature AOP")
+<form action="javascript:newissn()">
+ISSN: <input type="text" name="issn-input" id="issn-input"></input><br />
+Title: <input type="text" name="title-input" id="title-input"></input><br />
+<input type="submit" value="Submit"></input>
+</form>
+<div id="output">
+</div>
+<div id="rssoutput">
+</div>
+</body>
+</html>
