@@ -1,0 +1,24 @@
+Options +ExecCGI
+
+# taken from http://webpy.infogami.com/install
+<IfModule mod_rewrite.c>
+  RewriteEngine on
+  RewriteBase /services/tictoclookup/standalone
+  # exclude scripts directory 
+  RewriteCond %{REQUEST_URI} !^/services/tictoclookup/standalone/index.html
+  RewriteCond %{REQUEST_URI} !^/services/tictoclookup/standalone/tictoc-(.*)
+  # exclude URI's already ending in tictoc.py - why?
+  RewriteCond %{REQUEST_URI} !^(/.*)+tictocstandalone.py/
+  RewriteRule ^(.*)$ tictocstandalone.py/$1 [PT]
+</IfModule>
+
+SetEnv WSGI_APPLICATION_GROUP tictoc-server
+
+<Files tictocstandalone.py>
+    SetHandler wsgi-script
+</Files>
+
+<FilesMatch "\.(js|xml)$">
+Header set Cache-Control "max-age=1,must-revalidate"
+</FilesMatch>
+
