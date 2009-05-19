@@ -1,70 +1,75 @@
-google.load("jquery", "1.3.2");
 google.load("feeds", "1");
 
-function handletictoc()
+function handletictocspans()
 {
-	$("head").append('<link rel="stylesheet" type="text/css" href="/screens/jquery.cluetip.css" />');
-	var tooltip = true; //if WebBridge is disabled, display a tooltip 
-	var tictoclabel = "Subscribe to the Table of Contents Service";
-	//Test if WebBridge div id=tictoc exists
-	var tictoc = $("#tictoc");
-	if (tictoc.length == 0) {
-		var issn = $("tr > td.bibInfoLabel:contains('ISSN') + td.bibInfoData").text().replace(/^\s+|\s+$/g, "");
-
-		var jtitle = $("tr > td.bibInfoLabel:contains('Title')").filter(function() {
-  			return $(this).text() == 'Title';
-		}).eq(0).next("td.bibInfoData").text().replace(/^\s+|\s+$/g, "");
-
-	} else {
-		var issn = tictoc.attr("issn");
-		var jtitle = tictoc.attr("jtitle");
-		var tooltip = tictoc.attr("tooltip") == "true";
-	}
+	$("head").append('<link rel="stylesheet" type="text/css" href="http://libx.lib.vt.edu/services/jquery-plugins/cluetip/jquery.cluetip.css" />');
 	
-	var titleclause = "?title=" + encodeURIComponent(jtitle);
-	
-	function whendatareceived(data) {
-		if (data.records.length == 0) 
-        	return;
-		
-		if (tictoc.length == 0) { //WebBridge disabled
-			$("tr > td.bibInfoLabel:contains('ISSN')").parent()
-			.after('<tr><td class="bibInfoLabel">' + tictoclabel 
-			 + '</td><td class="bibInfoData"><a id="tictocrssdata" title="' + tictoclabel + ' for ' + data.records[0].title 
-		 	 + '" href="' + data.records[0].rssfeed + '">'  
-		 	 + data.records[0].title 
-		 	 + '&nbsp;<img src="/screens/16px-Feed-icon.svg.png"/></a></td></tr>');
-			tictoc = $('#tictocrssdata');
-		} else {
-			tictoc.append('<a title="' + tictoclabel + ' for ' + data.records[0].title 
-		 	 + '" href="' + data.records[0].rssfeed + '">' + tictoclabel + ' for ' 
-		 	 + data.records[0].title 
-		 	 + '&nbsp;<img src="/screens/16px-Feed-icon.svg.png"/></a><br />');
+	var tictocspans = $("span[class*='tictoc-']");
+	tictocspans.each(function () {
+        var issn = "";
+        var jtitle = "";
+		var title = this.getAttribute ('title');
+		var match = title.match(/ISSN:(\d{4}\-?\d{3}[xX\d]):(.*)/);
+		if (match) {
+			issn = match[1];
+			jtitle = match[2];
+		} else if (title == "ISSN:millennium.issnandtitle") {
+			issn = $("tr > td.bibInfoLabel:contains('ISSN') + td.bibInfoData").text().replace(/^\s+|\s+$/g, "");
+			jtitle = $("tr > td.bibInfoLabel:contains('Title')").filter(function() {
+				return $(this).text() == 'Title';
+			}).eq(0).next("td.bibInfoData").text().replace(/^\s+|\s+$/g, "");
 		}
 		
-		if (tooltip) {
-			tictoc.attr("rel", "<div></div>");
-			tictoc.cluetip({sticky: true, closePosition: 'title', arrows: true,
-				onShow: function ($cluetip, $cluetipInner) {
-					//$cluetipInner is a jquery that has selected the inner content of the cluetip as it is shown
-					// for CSS, see
-					// http://code.google.com/apis/ajaxfeeds/documentation/reference.html#FeedControl
-					feedControl = new google.feeds.FeedControl();
-					feedControl.setNumEntries(5);
-					feedControl.addFeed(data.records[0].rssfeed, data.records[0].title);
-					feedControl.draw($cluetipInner[0]);
-				}
-			});
+		if (issn == "")
+			return;
+		
+		var titleclause = "?title=" + encodeURIComponent(jtitle);		
+		var $span = $(this);
+		
+		function whendatareceived (data) {
+			if (data.records.length == 0) 
+				return;
+				
+			var tictocresult = data.records[0];
+			if ($span.hasClass ("tictoc-append-title")) {
+				$span.append(tictocresult.title);
+			}
+			
+			if ($span.hasClass ("tictoc-link")) {
+				$span.wrap('<a href="' + tictocresult.rssfeed + '"></a>');
+				$span.attr('title', '');
+				//place in own class
+				$('head').append('<link rel="alternate" type="application/rss+xml" title="Table of Contents for ' 
+				+ tictocresult.title + '" href="' + tictocresult.rssfeed + '"/>');
+			}
+			
+			if ($span.hasClass ("tictoc-preview")) {
+				$span.attr("rel", "<div></div>");
+				$span.cluetip({width: '500px', sticky: true, closePosition: 'title', arrows: true, local: true,
+					onShow: function ($cluetip, $cluetipInner) {
+						//$cluetipInner is a jquery that has selected the inner content of the cluetip as it is shown
+						// for CSS, see
+						// http://code.google.com/apis/ajaxfeeds/documentation/reference.html#FeedControl
+						var feedControl = new google.feeds.FeedControl();
+						feedControl.setNumEntries(5);
+						feedControl.addFeed(tictocresult.rssfeed, tictocresult.title);
+						feedControl.draw($cluetipInner[0]);
+					}
+				});
+			}
+			
+			$span.parents().andSelf().show();
 		}
 		
-		$('head').append('<link rel="alternate" type="application/rss+xml" title="Table of Content for ' 
-		 + data.records[0].title + '" href="' + data.records[0].rssfeed + '"/>');
-		
-	}
-    
-	if (issn != "") {
 		$.getJSON("http://tictoclookup.appspot.com/" + issn + titleclause + "&jsoncallback=?", whendatareceived);
-	}
+	});
 }
 
-google.setOnLoadCallback(handletictoc);
+google.setOnLoadCallback(handletictocspans, true);
+
+// remove 1x1 image placed by syndetics.com
+$(window).load(function () {
+	$("img[src*='syndetics.com']").filter(function () {
+		return $(this).height() == 1 && $(this).width() == 1;
+	}).remove();
+});
