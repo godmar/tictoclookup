@@ -8,6 +8,10 @@ handlers:
   static_files: index.html
   upload: index.html
 
+- url: /
+  static_files: tictoc.js
+  upload: tictoc.js
+
 #- url: /console/static
 #  static_dir: console/app/view/static
 #
