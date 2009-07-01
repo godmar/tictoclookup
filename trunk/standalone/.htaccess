@@ -1,13 +1,16 @@
 Options +ExecCGI
 
-# taken from http://webpy.infogami.com/install
 <IfModule mod_rewrite.c>
   RewriteEngine on
-  RewriteBase /services/tictoclookup/standalone
-  # exclude scripts directory 
-  RewriteCond %{REQUEST_URI} !^/services/tictoclookup/standalone/index.html
-  RewriteCond %{REQUEST_URI} !^/services/tictoclookup/standalone/tictoc-(.*)
-  # exclude URI's already ending in tictoc.py - why?
+
+  # Not need if on a path reachable from root dir
+  #RewriteBase /services/tictoclookup/standalone
+  # serve all files contained in here directly
+  RewriteCond %{REQUEST_FILENAME} !-f
+
+  # or, just serve index.html and tictoc-(.*) directly
+  #RewriteCond %{REQUEST_URI} !/index.html$
+  #RewriteCond %{REQUEST_URI} !/tictoc-(.*)
   RewriteCond %{REQUEST_URI} !^(/.*)+tictocstandalone.py/
   RewriteRule ^(.*)$ tictocstandalone.py/$1 [PT]
 </IfModule>
