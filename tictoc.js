@@ -4,7 +4,7 @@ function handletictocspans()
 {
 	$("head").append('<link rel="stylesheet" type="text/css" href="http://libx.lib.vt.edu/services/jquery-plugins/cluetip/jquery.cluetip.css" />');
 	
-	var tictocspans = $("span[class*='tictoc-']");
+	var tictocspans = $("(span,div)[class*='tictoc-']");
 	tictocspans.each(function () {
         var issn = "";
         var jtitle = "";
@@ -35,12 +35,14 @@ function handletictocspans()
 				$span.append(tictocresult.title);
 			}
 			
+			if ($span.hasClass ("tictoc-alternate-link")) {
+				$('head').append('<link rel="alternate" type="application/rss+xml" title="Table of Contents for ' 
+				+ tictocresult.title + '" href="' + tictocresult.rssfeed + '"/>');
+            }
+
 			if ($span.hasClass ("tictoc-link")) {
 				$span.wrap('<a href="' + tictocresult.rssfeed + '"></a>');
 				$span.attr('title', '');
-				//place in own class
-				$('head').append('<link rel="alternate" type="application/rss+xml" title="Table of Contents for ' 
-				+ tictocresult.title + '" href="' + tictocresult.rssfeed + '"/>');
 			}
 			
 			if ($span.hasClass ("tictoc-preview")) {
@@ -57,6 +59,16 @@ function handletictocspans()
 					}
 				});
 			}
+
+            /* embed the preview in this element */
+            var match = $span[0].className.match(/tictoc-embed(-(\d+))?/);
+			if (match) {
+                var feedControl = new google.feeds.FeedControl();
+                if (match[2])
+                    feedControl.setNumEntries(match[2]);
+                feedControl.addFeed(tictocresult.rssfeed, tictocresult.title);
+                feedControl.draw($span[0]);
+            }
 			
 			$span.parents().andSelf().show();
 		}
