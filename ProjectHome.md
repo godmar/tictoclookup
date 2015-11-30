@@ -1,0 +1,1 @@
+Provides a web services interface (JSON) to ticTOC data set. See http://tictoclookup.appspot.com/ for details.
